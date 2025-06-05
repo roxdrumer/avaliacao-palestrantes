@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Avaliação de Palestrantes</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f4f4f4;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: #fff;
+      margin-bottom: 40px;
+    }
+
+    th, td {
+      padding: 8px;
+      border: 1px solid #ccc;
+      text-align: center;
+    }
+
+    .star {
+      cursor: pointer;
+      font-size: 20px;
+      color: lightgray;
+    }
+
+    .star.selected {
+      color: gold;
+    }
+
+    .low { background-color: #ffcccc; }
+    .medium { background-color: #fff8c6; }
+    .high { background-color: #ccffcc; }
+
+    .top50-container {
+      padding: 15px;
+      background: #e0ffe0;
+      border: 1px solid #a5d6a7;
+      border-radius: 10px;
+      margin-top: 30px;
+    }
+
+    .top50-container h2 {
+      margin-top: 0;
+    }
+
+    .top50-container ul {
+      list-style: none;
+      padding-left: 0;
+      columns: 2;
+    }
+
+    .top50-container li {
+      margin: 4px 0;
+    }
+
+  </style>
+</head>
+<body>
+  <h1>Avaliação de Palestrantes</h1>
+
+  <!-- TABELA DE AVALIAÇÃO -->
+  <table id="tabela">
+    <thead>
+      <tr>
+        <th>Nome</th>
+        <th>Tema</th>
+        <th>Pinotti</th>
+        <th>Dellazari</th>
+        <th>Querubin</th>
+        <th>Nota</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <!-- TOP 50 -->
+  <div class="top50-container">
+    <h2>Top 50 Mais Bem Avaliados</h2>
+    <ul id="top50-list"></ul>
+  </div>
+
+  <script>
+    const palestrantes = [
+      "Fabio Souza", "Evandro Cantú", "Alessandro Cunha", "Heber Miguel dos Santos",
+      "Daniel Nunes de Andrade", "Magno Teodoro Garay Meza", "Matheus Bittencourt",
+      "Daniel Wildt", "Paulo Lobo", "Jorge Margutti", "Luis Teixeira", "Lucas Villa Real",
+      "Cristiano dos Santos", "Camila de Oliveira", "André Luiz Dias", "Eduardo Azevedo",
+      "Carla Vieira", "Marcos Aurélio", "Luciana Costa", "Bruno Souza", "Juliana Rezende",
+      "André Rocha", "Tiago Oliveira", "Amanda Ribeiro", "Rodrigo Ribeiro",
+      "Ana Paula Almeida", "Felipe Nunes", "Fernanda Duarte", "Victor Hugo", "Tatiane Silva",
+      "Claudio Lopes", "Jéssica Martins", "Rafael Campos", "Patrícia Melo", "César Augusto",
+      "Vanessa Costa", "Gustavo Lima", "Márcio Silva", "Aline Ferreira", "Diego Rocha",
+      "Sérgio Tavares", "Camila Fernandes", "Eduardo Martins", "Simone Braga", "Ivan Costa",
+      "Raquel Souza", "Fernando Alves", "Helena Ramos", "Leandro Santos", "Tatiana Rocha"
+    ];
+
+    const avaliadores = ["Pinotti", "Dellazari", "Querubin"];
+
+    const notas = {};
+
+    function render() {
+      const tbody = document.querySelector("tbody");
+      tbody.innerHTML = "";
+
+      palestrantes.forEach(nome => {
+        if (!notas[nome]) {
+          notas[nome] = {};
+          avaliadores.forEach(a => notas[nome][a] = 0);
+        }
+
+        const media = (avaliadores.map(a => notas[nome][a]).reduce((a, b) => a + b, 0) / avaliadores.length).toFixed(2);
+
+        const tr = document.createElement("tr");
+        let classe = "";
+        if (media < 2.5) classe = "low";
+        else if (media < 3.5) classe = "medium";
+        else classe = "high";
+        tr.className = classe;
+
+        tr.innerHTML = `
+          <td>${nome}</td>
+          <td>undefined</td>
+          ${avaliadores.map(av => `<td>${renderStars(nome, av)}</td>`).join("")}
+          <td>${media}</td>
+        `;
+
+        tbody.appendChild(tr);
+      });
+
+      renderTop50();
+      attachEvents();
+    }
+
+    function renderStars(nome, avaliador) {
+      const nota = notas[nome]?.[avaliador] || 0;
+      let stars = "";
+
+      for (let i = 1; i <= 5; i++) {
+        stars += `<span class="star ${i <= nota ? "selected" : ""}" data-nome="${nome}" data-avaliador="${avaliador}" data-nota="${i}">★</span>`;
+      }
+
+      return stars;
+    }
+
+    function attachEvents() {
+      document.querySelectorAll(".star").forEach(el => {
+        el.addEventListener("click", () => {
+          const { nome, avaliador, nota } = el.dataset;
+          notas[nome][avaliador] = parseInt(nota);
+          enviarNota(nome, avaliador, parseInt(nota));
+          render();
+        });
+      });
+    }
+
+    function renderTop50() {
+      const lista = Object.entries(notas).map(([nome, avaliacoes]) => {
+        const media = avaliadores.map(a => avaliacoes[a]).reduce((a, b) => a + b, 0) / avaliadores.length;
+        return { nome, media };
+      });
+
+      lista.sort((a, b) => b.media - a.media);
+
+      const ul = document.getElementById("top50-list");
+      ul.innerHTML = "";
+      lista.slice(0, 50).forEach(item => {
+        const li = document.createElement("li");
+        li.textContent = `${item.nome} - Nota: ${item.media.toFixed(2)}`;
+        ul.appendChild(li);
+      });
+    }
+
+    function enviarNota(nome, avaliador, nota) {
+      fetch("https://script.google.com/macros/s/AKfycbwMGNA2xZVwJi8-cy1UrgZ-hjGyrYrB-pkR2CCp00wYVSHmD4d9JZDhTrqbxa3Umb2i/exec", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          Nome: nome,
+          Avaliador: avaliador,
+          Nota: nota
+        })
+      }).catch(err => console.error("Erro ao enviar:", err));
+    }
+
+    render();
+  </script>
+</body>
+</html>
