@@ -259,7 +259,7 @@
 
     function enviarNota(nome, avaliador, nota) {
       console.log("Enviando nota:", nome, avaliador, nota);
-      fetch("https://script.google.com/macros/s/AKfycbwMGNA2xZVwJi8-cy1UrgZ-hjGyrYrB-pkR2CCp00wYVSHmD4d9JZDhTrqbxa3Umb2i/exec", {
+      fetch("https://script.google.com/macros/s/AKfycbyKYdq7ZMhdLVmW7hF1_rCy1XUODElRjBxV8e74srZpOWFSK6XPt69UIvDtX4O2sL2s/exec", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ Nome: nome, Avaliador: avaliador, Nota: nota })
