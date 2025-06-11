@@ -25,6 +25,7 @@
       padding: 8px;
       border: 1px solid #ccc;
       text-align: center;
+      vertical-align: middle;
     }
 
     .star {
@@ -34,12 +35,12 @@
     }
 
     .star.selected {
-      color: gold;
+      color: goldenrod;
     }
 
-    .low { background-color: #fa7e7e; }
-    .medium { background-color: #fff8c6; }
-    .high { background-color: #ccffcc; }
+    .low { background-color: #ffcdd2; }
+    .medium { background-color: #fff9c4; }
+    .high { background-color: #c8e6c9; }
 
     .top50-container {
       padding: 15px;
@@ -63,12 +64,26 @@
       margin: 4px 0;
     }
 
+    .no-opinar {
+      display: block;
+      margin-top: 4px;
+      font-size: 12px;
+      background: #eee;
+      border: none;
+      border-radius: 4px;
+      padding: 2px 4px;
+      cursor: pointer;
+    }
+
+    .no-opinar.active {
+      background: #aaa;
+      color: white;
+    }
   </style>
 </head>
 <body>
-  <h1>Avaliação de Palestrantes</h1>
+  <h1>Palestrantes <span style="color: black;">Latino</span><span style="color: goldenrod;">ware</span></h1>
 
-  <!-- TABELA DE AVALIAÇÃO -->
   <table id="tabela">
     <thead>
       <tr>
@@ -83,7 +98,6 @@
     <tbody></tbody>
   </table>
 
-  <!-- TOP 50 -->
   <div class="top50-container">
     <h2>Top 50 Mais Bem Avaliados</h2>
     <ul id="top50-list"></ul>
@@ -91,46 +105,100 @@
 
   <script>
     const palestrantes = [
-      "Fabio Souza", "Evandro Cantú", "Alessandro Cunha", "Heber Miguel dos Santos",
-      "Daniel Nunes de Andrade", "Magno Teodoro Garay Meza", "Matheus Bittencourt",
-      "Daniel Wildt", "Paulo Lobo", "Jorge Margutti", "Luis Teixeira", "Lucas Villa Real",
-      "Cristiano dos Santos", "Camila de Oliveira", "André Luiz Dias", "Eduardo Azevedo",
-      "Carla Vieira", "Marcos Aurélio", "Luciana Costa", "Bruno Souza", "Juliana Rezende",
-      "André Rocha", "Tiago Oliveira", "Amanda Ribeiro", "Rodrigo Ribeiro",
-      "Ana Paula Almeida", "Felipe Nunes", "Fernanda Duarte", "Victor Hugo", "Tatiane Silva",
-      "Claudio Lopes", "Jéssica Martins", "Rafael Campos", "Patrícia Melo", "César Augusto",
-      "Vanessa Costa", "Gustavo Lima", "Márcio Silva", "Aline Ferreira", "Diego Rocha",
-      "Sérgio Tavares", "Camila Fernandes", "Eduardo Martins", "Simone Braga", "Ivan Costa",
-      "Raquel Souza", "Fernando Alves", "Helena Ramos", "Leandro Santos", "Tatiana Rocha"
+      { nome: "Fabio Souza", tema: "Open Source" },
+      { nome: "Evandro Cantú", tema: "Cultura Hacker" },
+      { nome: "Alessandro Cunha", tema: "Segurança da Informação" },
+      { nome: "Heber Miguel dos Santos", tema: "Privacidade Digital" },
+      { nome: "Daniel Nunes de Andrade", tema: "Infraestrutura" },
+      { nome: "Magno Teodoro Garay Meza", tema: "Desenvolvimento Web" },
+      { nome: "Matheus Bittencourt", tema: "DevOps" },
+      { nome: "Daniel Wildt", tema: "Agilidade" },
+      { nome: "Paulo Lobo", tema: "Linux" },
+      { nome: "Jorge Margutti", tema: "Redes" },
+      { nome: "Luis Teixeira", tema: "Automação" },
+      { nome: "Lucas Villa Real", tema: "IoT" },
+      { nome: "Cristiano dos Santos", tema: "Kubernetes" },
+      { nome: "Camila de Oliveira", tema: "Dados Abertos" },
+      { nome: "André Luiz Dias", tema: "Educação Tecnológica" },
+      { nome: "Eduardo Azevedo", tema: "Hardware Livre" },
+      { nome: "Carla Vieira", tema: "IA e Ética" },
+      { nome: "Marcos Aurélio", tema: "Java" },
+      { nome: "Luciana Costa", tema: "Carreira em TI" },
+      { nome: "Bruno Souza", tema: "Comunidades" },
+      { nome: "Juliana Rezende", tema: "Python" },
+      { nome: "André Rocha", tema: "Blockchain" },
+      { nome: "Tiago Oliveira", tema: "Segurança Digital" },
+      { nome: "Amanda Ribeiro", tema: "Inclusão Digital" },
+      { nome: "Rodrigo Ribeiro", tema: "Open Hardware" },
+      { nome: "Ana Paula Almeida", tema: "Sustentabilidade e TI" },
+      { nome: "Felipe Nunes", tema: "LibreOffice" },
+      { nome: "Fernanda Duarte", tema: "Computação na Nuvem" },
+      { nome: "Victor Hugo", tema: "Governança de TI" },
+      { nome: "Tatiane Silva", tema: "Mulheres na Tecnologia" },
+      { nome: "Claudio Lopes", tema: "Acessibilidade" },
+      { nome: "Jéssica Martins", tema: "Tecnologia Social" },
+      { nome: "Rafael Campos", tema: "Observabilidade" },
+      { nome: "Patrícia Melo", tema: "UX/UI" },
+      { nome: "César Augusto", tema: "Sistemas Embarcados" },
+      { nome: "Vanessa Costa", tema: "Open Science" },
+      { nome: "Gustavo Lima", tema: "Computação Quântica" },
+      { nome: "Márcio Silva", tema: "Documentação Técnica" },
+      { nome: "Aline Ferreira", tema: "Big Data" },
+      { nome: "Diego Rocha", tema: "DevRel" },
+      { nome: "Sérgio Tavares", tema: "Raspberry Pi" },
+      { nome: "Camila Fernandes", tema: "Educação Aberta" },
+      { nome: "Eduardo Martins", tema: "Licenças Livres" },
+      { nome: "Simone Braga", tema: "Empreendedorismo" },
+      { nome: "Ivan Costa", tema: "IA Aplicada" },
+      { nome: "Raquel Souza", tema: "Tecnologia e Sociedade" },
+      { nome: "Fernando Alves", tema: "Geotecnologias" },
+      { nome: "Helena Ramos", tema: "Open Data" },
+      { nome: "Leandro Santos", tema: "Containers" },
+      { nome: "Tatiana Rocha", tema: "Governança Aberta" }
     ];
 
     const avaliadores = ["Pinotti", "Dellazari", "Querubin"];
-
     const notas = {};
 
     function render() {
       const tbody = document.querySelector("tbody");
       tbody.innerHTML = "";
 
-      palestrantes.forEach(nome => {
+      palestrantes.forEach(p => {
+        const nome = p.nome;
+        const tema = p.tema;
+
         if (!notas[nome]) {
           notas[nome] = {};
-          avaliadores.forEach(a => notas[nome][a] = 0);
+          avaliadores.forEach(a => notas[nome][a] = null);
         }
 
-        const media = (avaliadores.map(a => notas[nome][a]).reduce((a, b) => a + b, 0) / avaliadores.length).toFixed(2);
+        const notasValidas = avaliadores
+          .map(a => notas[nome][a])
+          .filter(n => n !== null);
+        const media = notasValidas.length > 0
+          ? (notasValidas.reduce((a, b) => a + b, 0) / notasValidas.length).toFixed(2)
+          : "—";
 
         const tr = document.createElement("tr");
         let classe = "";
-        if (media < 2.5) classe = "low";
-        else if (media < 3.5) classe = "medium";
-        else classe = "high";
+        if (media !== "—") {
+          const m = parseFloat(media);
+          if (m < 2.5) classe = "low";
+          else if (m < 3.5) classe = "medium";
+          else classe = "high";
+        }
         tr.className = classe;
 
         tr.innerHTML = `
           <td>${nome}</td>
-          <td>undefined</td>
-          ${avaliadores.map(av => `<td>${renderStars(nome, av)}</td>`).join("")}
+          <td>${tema}</td>
+          ${avaliadores.map(av => `
+            <td>
+              ${renderStars(nome, av)}
+              <button class="no-opinar ${notas[nome][av] === null ? "active" : ""}" data-nome="${nome}" data-avaliador="${av}">Não opinar</button>
+            </td>
+          `).join("")}
           <td>${media}</td>
         `;
 
@@ -142,7 +210,7 @@
     }
 
     function renderStars(nome, avaliador) {
-      const nota = notas[nome]?.[avaliador] || 0;
+      const nota = notas[nome]?.[avaliador];
       let stars = "";
 
       for (let i = 1; i <= 5; i++) {
@@ -161,11 +229,20 @@
           render();
         });
       });
+
+      document.querySelectorAll(".no-opinar").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const { nome, avaliador } = btn.dataset;
+          notas[nome][avaliador] = null;
+          render();
+        });
+      });
     }
 
     function renderTop50() {
       const lista = Object.entries(notas).map(([nome, avaliacoes]) => {
-        const media = avaliadores.map(a => avaliacoes[a]).reduce((a, b) => a + b, 0) / avaliadores.length;
+        const notasValidas = avaliadores.map(a => avaliacoes[a]).filter(n => n !== null);
+        const media = notasValidas.length ? notasValidas.reduce((a, b) => a + b, 0) / notasValidas.length : 0;
         return { nome, media };
       });
 
@@ -181,16 +258,11 @@
     }
 
     function enviarNota(nome, avaliador, nota) {
+      console.log("Enviando nota:", nome, avaliador, nota);
       fetch("https://script.google.com/macros/s/AKfycbwMGNA2xZVwJi8-cy1UrgZ-hjGyrYrB-pkR2CCp00wYVSHmD4d9JZDhTrqbxa3Umb2i/exec", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          Nome: nome,
-          Avaliador: avaliador,
-          Nota: nota
-        })
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ Nome: nome, Avaliador: avaliador, Nota: nota })
       }).catch(err => console.error("Erro ao enviar:", err));
     }
 
