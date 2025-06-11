@@ -157,9 +157,64 @@
       { nome: "Tatiana Rocha", tema: "Governança Aberta" }
     ];
 
+    const contatos = {
+      "Fabio Souza": "fabio.souza@embarcados.com.br",
+      "Evandro Cantú": "evandro.cantu@ifpr.edu.br",
+      "Alessandro Cunha": "alessandro.cunha@avnet.com",
+      "Heber Miguel dos Santos": "heber.eng.eletronica@gmail.com",
+      "Daniel Nunes de Andrade": "danielnunes@inatel.br",
+      "Magno Teodoro Garay Meza": "https://www.linkedin.com/in/magnogaray/",
+      "Luiz Leão": "luiz.leao2002@hotmail.com",
+      "Maddox": "maddox.br@gmail.com",
+      "Adriano Santos": "adriano.santos@itaipuparquetec.org.br / alan.lee@itaipuparquetec.org.br",
+      "R Coelho": "rcoelho@mpma.mp.br",
+      "Fernando Schutz": "fschutz@gmail.com",
+      "Estevan Brandt": "estevanbrandt@gmail.com",
+      "Fernando Mori": "fsmmori@gmail.com",
+      "Drenoel": "drenoel@gmail.com",
+      "Linux Rafa": "linux.rafa@gmail.com",
+      "Galvão": "galvao@galvao.eti.br",
+      "Gabriel Rabelo": "rabelogabriel72@gmail.com",
+      "Marcos Savant": "marcos@savant.com.br",
+      "Wagner Mattei": "wagner.mattei@gmail.com",
+      "Gustavo Pantuza": "gustavopantuza@gmail.com",
+      "Camila DevOps": "camidevops@gmail.com",
+      "Felipe Guimarães": "felipe.guimaraes@itaipuparquetec.org.br",
+      "João Bueno": "jsobueno@gmail.com",
+      "FM Web Developer": "fm.webdeveloper@gmail.com",
+      "Linux Men": "linuxmen@papodesysadmin.org",
+      "Nilson dos Santos": "nilson.dossantos@inss.gov.br - +55 61 8121-3184",
+      "Renata Zimm": "renazimm@gmail.com",
+      "Reinaldo": "reinaldo@energyreview.com.br",
+      "Guido B.": "guidob@itaipu.gov.py",
+      "Debora Denise": "deboradenisedias@hotmail.com",
+      "Alcides Augusto": "alcides@emater.pr.gov.br",
+      "Tânia Lopes": "tania.lopes@pmc.pr.gov.br",
+      "Sueli Ueda": "sueli.ueda@itaipu.gov.br",
+      "Alvaro Hecht": "alvaro.hecht@itaipu.gov.br",
+      "Bruno Rossi": "bruno.rossi@itaipu.gov.br",
+      "Marcos Augusto": "marcos.augusto@itaipu.gov.br",
+      "Renan Menegucci": "renan.menegucci@itaipu.gov.br",
+      "Lucas Santos": "lucas.santos@itaipu.gov.br"
+    };
+
     const avaliadores = ["Pinotti", "Dellazari", "Querubin"];
+
+    // Notas armazenadas: notas[nome][avaliador] = número 1-5 ou null
     const notas = {};
 
+    // Função para renderizar estrelas
+    function renderStars(nome, avaliador) {
+      const notaAtual = notas[nome] ? notas[nome][avaliador] : null;
+      let starsHtml = "";
+      for (let i = 1; i <= 5; i++) {
+        const selectedClass = notaAtual === i ? "selected" : "";
+        starsHtml += `<span class="star ${selectedClass}" data-nome="${nome}" data-avaliador="${avaliador}" data-valor="${i}">&#9733;</span>`;
+      }
+      return starsHtml;
+    }
+
+    // Função principal para renderizar a tabela
     function render() {
       const tbody = document.querySelector("tbody");
       tbody.innerHTML = "";
@@ -167,6 +222,7 @@
       palestrantes.forEach(p => {
         const nome = p.nome;
         const tema = p.tema;
+        const contato = contatos[nome] || "";
 
         if (!notas[nome]) {
           notas[nome] = {};
@@ -191,7 +247,7 @@
         tr.className = classe;
 
         tr.innerHTML = `
-          <td>${nome}</td>
+          <td title="${contato}">${nome}</td>
           <td>${tema}</td>
           ${avaliadores.map(av => `
             <td>
@@ -209,63 +265,56 @@
       attachEvents();
     }
 
-    function renderStars(nome, avaliador) {
-      const nota = notas[nome]?.[avaliador];
-      let stars = "";
+    // Função para renderizar a lista Top 50
+    function renderTop50() {
+      const top50List = document.getElementById("top50-list");
 
-      for (let i = 1; i <= 5; i++) {
-        stars += `<span class="star ${i <= nota ? "selected" : ""}" data-nome="${nome}" data-avaliador="${avaliador}" data-nota="${i}">★</span>`;
-      }
-
-      return stars;
-    }
-
-    function attachEvents() {
-      document.querySelectorAll(".star").forEach(el => {
-        el.addEventListener("click", () => {
-          const { nome, avaliador, nota } = el.dataset;
-          notas[nome][avaliador] = parseInt(nota);
-          enviarNota(nome, avaliador, parseInt(nota));
-          render();
-        });
+      // Ordenar palestrantes pela média decrescente
+      const palestrantesComMedia = palestrantes.map(p => {
+        const notasValidas = avaliadores
+          .map(a => notas[p.nome][a])
+          .filter(n => n !== null);
+        const media = notasValidas.length > 0
+          ? (notasValidas.reduce((a, b) => a + b, 0) / notasValidas.length)
+          : 0;
+        return { nome: p.nome, media };
       });
 
-      document.querySelectorAll(".no-opinar").forEach(btn => {
-        btn.addEventListener("click", () => {
-          const { nome, avaliador } = btn.dataset;
+      palestrantesComMedia.sort((a, b) => b.media - a.media);
+
+      // Pega os top 50 (ou todos se menos de 50)
+      const top50 = palestrantesComMedia.slice(0, 50);
+
+      top50List.innerHTML = top50
+        .map(p => `<li>${p.nome} - Média: ${p.media.toFixed(2)}</li>`)
+        .join("");
+    }
+
+    // Função para tratar eventos dos cliques nas estrelas e botões "Não opinar"
+    function attachEvents() {
+      document.querySelectorAll(".star").forEach(star => {
+        star.onclick = () => {
+          const nome = star.getAttribute("data-nome");
+          const avaliador = star.getAttribute("data-avaliador");
+          const valor = parseInt(star.getAttribute("data-valor"));
+
+          notas[nome][avaliador] = valor;
+          render();
+        };
+      });
+
+      document.querySelectorAll(".no-opinar").forEach(button => {
+        button.onclick = () => {
+          const nome = button.getAttribute("data-nome");
+          const avaliador = button.getAttribute("data-avaliador");
+
           notas[nome][avaliador] = null;
           render();
-        });
+        };
       });
     }
 
-    function renderTop50() {
-      const lista = Object.entries(notas).map(([nome, avaliacoes]) => {
-        const notasValidas = avaliadores.map(a => avaliacoes[a]).filter(n => n !== null);
-        const media = notasValidas.length ? notasValidas.reduce((a, b) => a + b, 0) / notasValidas.length : 0;
-        return { nome, media };
-      });
-
-      lista.sort((a, b) => b.media - a.media);
-
-      const ul = document.getElementById("top50-list");
-      ul.innerHTML = "";
-      lista.slice(0, 50).forEach(item => {
-        const li = document.createElement("li");
-        li.textContent = `${item.nome} - Nota: ${item.media.toFixed(2)}`;
-        ul.appendChild(li);
-      });
-    }
-
-    function enviarNota(nome, avaliador, nota) {
-      console.log("Enviando nota:", nome, avaliador, nota);
-      fetch("https://script.google.com/macros/s/AKfycbyKYdq7ZMhdLVmW7hF1_rCy1XUODElRjBxV8e74srZpOWFSK6XPt69UIvDtX4O2sL2s/exec", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ Nome: nome, Avaliador: avaliador, Nota: nota })
-      }).catch(err => console.error("Erro ao enviar:", err));
-    }
-//
+    // Inicializa a tabela na carga da página
     render();
   </script>
 </body>
